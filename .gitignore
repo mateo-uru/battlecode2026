@@ -1,0 +1,24 @@
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+
+# cambc local state, match output, replays
+.cambc/
+arena/.cambc/
+arena/res/
+arena/replays/
+arena/matches/
+arena/batch.out
+results/
+*.repl26a
+*.fuel
+
+# build artifacts
+bots/*/build/
+bots/*/target/
+**/target/
