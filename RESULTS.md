@@ -247,7 +247,6 @@ Python's budget is 2,500,000 fuel per turn. The first game turn is 2× and the f
 cd arena
 ./batch.sh baseline 3 /tmp/bc-out/baseline
 ./batch.sh starter-python 3 /tmp/bc-out/starter
-python3 fuel.py /tmp/bc-out/baseline/replays /tmp/bc-out/starter/replays
 ```
 
-`arena/bots/ours/src` points at the repo `src/`. `arena/bots/baseline` is a copy of that tree at the frozen commit. `arena/bots/starter-python` is the SDK Python template.
+`arena/fuel.py` reads `FUEL` histogram lines out of a replay's stdout. The shipped bot does not print those lines; the table above is from the measurement build described in the previous section. `arena/bots/ours/src` points at the repo `src/`. `arena/bots/baseline` is a copy of that tree at the frozen commit. `arena/bots/starter-python` is the SDK Python template.
