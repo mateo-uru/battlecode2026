@@ -1,5 +1,6 @@
 #!/bin/bash
-. /workspace/battlecode/.venv/bin/activate
-cd /workspace/battlecode/arena
-cat ${1:-jobs.txt} | xargs -P 7 -L1 sh -c 'grep -q "team bot" res/$2_$3.log 2>/dev/null || cambc run $0 $1 --map $2 --release -o res/$2_$3 > res/$2_$3.log 2>&1'
-echo DONE
+# 40 maps x both sides. Usage: ./batch.sh [opponent] [jobs]
+cd "$(dirname "$0")"
+export PATH="${HOME}/.local/bin:${PATH}"
+# 3 workers: 4-wide runs have raced the wasm build and run the box out of memory.
+python3 suite.py --opponent "${1:-starter-python}" --jobs "${2:-3}" --timeout 420 --out "${3:-/tmp/bc-suite/${1:-starter-python}}"
