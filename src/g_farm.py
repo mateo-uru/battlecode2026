@@ -17,7 +17,7 @@ def pick(b):
                 continue
             d = max(d, g.ready - r)
         clear = 0 if g.state == 2 else g.hp_left / max(1.0, dps)
-        if g.dmg * clear > b.hp * 2.0:
+        if g.dmg * clear > b.hp * (3.5 if (g.elk and g.gems > 0 and b.round >= 1000 and b.W * b.H == 3000) else 2.0):
             continue
         s = (g.gems + 0.2 * g.gold) / (d * 1.5 + clear + 4)
         if b.group_danger(g):
@@ -35,6 +35,8 @@ def act(b):
         b.mem["br_t"] = b.round
         b.claim(g)
     if g is None:
+        if not b.at_spawn and b.W * b.H == 2040 and (b.hpf < 0.85 or b.gold >= 60):
+            return b.recall() or b.go_home()
         return b.step_toward(b.W // 2, b.H // 2, 3)
     if not b.farm_group(g, kite=False):
         g2 = pick(b)

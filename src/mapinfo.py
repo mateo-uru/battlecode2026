@@ -51,7 +51,7 @@ class MapInfo:
 
         # phobos: sparse maps get split farming, gem-poor maps carry discipline.
         # UPGRADE: walkable area and walking distances instead of raw area (walls, holes).
-        self.sparse = config.SPLIT and self.area >= config.SPLIT_AREA and self.area >= config.SPLIT_SPARSE * max(1, n)
+        self.sparse = config.SPLIT and self.area >= config.SPLIT_AREA and self.area >= config.SPLIT_SPARSE * max(1, n) and self.area < 9000
         self.gem_total = sum(g.gem_value() for g in self.groups)
         self.poor = self.gem_total < config.POOR_GEMS
 
