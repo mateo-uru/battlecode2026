@@ -1216,10 +1216,27 @@ class Body:
         self.mem[("air", g.i)] = 0
         wk = ("wait", g.i)
         if g.state == 3:
-            if g.ready > r + fd + wait_respawn + 2:
+            if self.W * self.H == 2040:
+                if g.ready > r + fd + wait_respawn + 2:
+                    return False
+                seen = bool((_bc.vision() & g.mask).count())
+                n = self.mem.get(wk, 0) + 1 if seen else 0
+                self.mem[wk] = n
+                if n > 25:
+                    self.mem[wk] = 0
+                    g.ready = r + 30
+                    return False
+                if g.mask.is_set(self.pos):
+                    if not self.step_to(self.ring_tiles(g, 1)):
+                        return False
+                    return True
+                if cheb(self.x, self.y, g.cx, g.cy) <= 3 and seen:
+                    return True
+                self.go_group(g, 1 if cheb(self.x, self.y, g.cx, g.cy) <= 3 else 2)
+                return True
+            if g.ready > r + wait_respawn:
                 return False
-            seen = bool((_bc.vision() & g.mask).count())
-            n = self.mem.get(wk, 0) + 1 if seen else 0
+            n = self.mem.get(wk, 0) + 1
             self.mem[wk] = n
             if n > 25:
                 # the respawn does not come (a spawn tile is blocked): look elsewhere for a while
@@ -1231,9 +1248,9 @@ class Body:
                 if not self.step_to(self.ring_tiles(g, 1)):
                     return False
                 return True
-            if cheb(self.x, self.y, g.cx, g.cy) <= 3 and seen:
+            if cheb(self.x, self.y, g.cx, g.cy) <= 3:
                 return True
-            self.go_group(g, 1 if cheb(self.x, self.y, g.cx, g.cy) <= 3 else 2)
+            self.go_group(g, 2)
             return True
         targets = self.group_targets(g)
         if targets:
