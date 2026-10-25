@@ -35,6 +35,8 @@ def act(b):
         b.mem["br_t"] = b.round
         b.claim(g)
     if g is None:
+        if not b.at_spawn and (b.hpf < 0.85 or b.gold >= 60):
+            return b.recall() or b.go_home()
         return b.step_toward(b.W // 2, b.H // 2, 3)
     if not b.farm_group(g, kite=False):
         g2 = pick(b)
