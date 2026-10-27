@@ -475,8 +475,8 @@ class Body:
                     u.type = _bc.champion_identity(ch, 1)
                     u.gems = _bc.champion_gems(ch)
                     u.st = 0
-                    u.str = 0
-                    u.foc = 0
+                    u.str = _bc.champion_get(ch, 5)
+                    u.foc = _bc.champion_get(ch, 6)
                     dx = q.x - x
                     dy = q.y - y
                     if dx < 0:
@@ -589,7 +589,10 @@ class Body:
             for gi, hp in seen.items():
                 g = self.groups[gi]
                 g.state = 1
-                g.hp_left = hp
+                if (_bc.vision() & g.mask).count() >= len(g.tiles):
+                    g.hp_left = hp
+                else:
+                    g.hp_left = max(hp, min(g.hp, g.hp_left))
 
     def group_at_tile(self):
         """Camp group whose spawn tiles include my tile, or None."""
@@ -980,11 +983,12 @@ class Body:
                     return True
             elif self.use(e, best.c):
                 return True
-        for e in self.abil:
-            if e[1] == K_DASH and e[4] > 0 and len(targets) >= 2 and self.ab_ready(e):
-                c0 = targets[0]
-                if cheb(self.x, self.y, c0.x, c0.y) <= e[2] + 1 and self.dash_stun(e, c0.x, c0.y):
-                    return True
+        if not self.enemies and self.W * self.H > 1200:
+            for e in self.abil:
+                if e[1] == K_DASH and e[4] > 0 and len(targets) >= 2 and self.ab_ready(e):
+                    c0 = targets[0]
+                    if cheb(self.x, self.y, c0.x, c0.y) <= e[2] + 1 and self.dash_stun(e, c0.x, c0.y):
+                        return True
         return False
 
     def dash_stun(self, e, tx, ty):
@@ -1127,7 +1131,7 @@ class Body:
         if ne:
             for a in self.allies:
                 if a.d <= ally_radius:
-                    h, d = PLAN.get(a.type, (900, 55))
+                    d = max(a.str + int(a.foc * 0.3), PLAN.get(a.type, (900, 55))[1], 30)
                     mine += a.hp * d
         return mine, theirs, ne
 
@@ -1169,8 +1173,14 @@ class Body:
         if d > self.arange and not self.moved:
             self.step_toward(u.x, u.y, self.arange)
         d = cheb(self.x, self.y, u.x, u.y)
-        if d <= self.arange and not self.ranged:
-            self.attack_reset(u.c)
+        if d <= self.arange:
+            if not self.ranged:
+                self.attack_reset(u.c)
+            elif not self.attacked:
+                for e in self.abil:
+                    if e[1] == K_RESET and self.ab_ready(e) and self.use(e, None):
+                        self.try_attack(u.c)
+                        break
         return True
 
     def flee(self, dash=True):
@@ -1198,8 +1208,6 @@ class Body:
     # ---------------------------------------------------------------- camps
     def fight_camps(self, targets, kite=True, use_spells=True):
         """Damage the visible camps in targets; approach if nothing is in range."""
-        if use_spells:
-            self.spells_on_camps(targets)
         inr = None
         best_adj = -1
         for ci in targets:
@@ -1213,8 +1221,12 @@ class Body:
                     inr = ci
         if inr is not None and self.can_attack:
             self.attack_reset(inr.c)
+            if use_spells:
+                self.spells_on_camps(targets)
             if self.ranged:
                 return True
+        elif use_spells:
+            self.spells_on_camps(targets)
         if not self.moved and inr is None:
             goals = Bitboard()
             for ci in targets:
@@ -1227,11 +1239,16 @@ class Body:
                 if not (ring & ~self.block & ~self.occ()).is_empty():
                     goals = ring
             self.step_to(goals)
-            if not self.ranged and self.can_attack:
-                for ci in targets:
-                    if cheb(self.x, self.y, ci.x, ci.y) <= self.arange:
+            for ci in targets:
+                if cheb(self.x, self.y, ci.x, ci.y) <= self.arange:
+                    if not self.ranged and self.can_attack:
                         self.attack_reset(ci.c)
-                        break
+                    elif self.ranged and not self.attacked:
+                        for e in self.abil:
+                            if e[1] == K_RESET and self.ab_ready(e) and self.use(e, None):
+                                self.try_attack(ci.c)
+                                break
+                    break
         return True
 
     def ring_tiles(self, g, r):

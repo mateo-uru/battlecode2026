@@ -1,6 +1,6 @@
 # Arena results
 
-`src/` is now `M3_omega_final` (Patch 2.0.0). The package adds `cambc.toml` (`name = "bbot"`, Python) and the report in `STRATEGY_V4_PATCH2.md`. That report, on Engine 2.0.0 / CLI 4.0.0, is 15/20 against `A_v3_base` (+5,562 gems, +117 kills minus deaths, 0 crashes) across 10 maps from both sides. This machine checked `python3 -m py_compile src/*.py` and did not re-run that 20-game benchmark.
+`src/` is now `N9_full_omega_qa` (`v166`), the QA pass on `M3_omega_final`. `cambc.toml` is unchanged (`name = "bbot"`, Python). `STRATEGY_V4_PATCH2.md` section 5 is the report: on Engine 2.0.0 / CLI 4.0.0, 14/20 against `A_v3_base` (+4,419 gems, +48 kills minus deaths, 0 crashes) across the same 10 maps from both sides. This machine checked `python3 -m py_compile src/*.py` and did not re-run that 20-game benchmark. The earlier M3 line in that file is 15/20 and +5,562 gems; section 5 remeasures M3 at 13/20 and +2,115 on the same pool.
 
 The tables below are the earlier CLI 3.0.5 measurement of the V3 bot, kept so that record stays in the repo. They are not the score of `M3_omega_final`.
 

@@ -1,5 +1,4 @@
-"""Survive gene (from goldrush, gen 2): recall at 35% or when 2-3 more hits would kill us;
-recall to shop when 150 gold sit unspent (kept from gen 1)."""
+"""Survive gene: release camp claim when retreating/recalling so allies can take the camp and we don't walk back into danger."""
 from body import CT
 
 
@@ -11,10 +10,14 @@ def act(b):
     if b.hpf < 0.35 or b.dmg_taken * 2.5 >= b.hp:
         if b.try_submit():
             return True
+        b.claim(None)
+        b.mem["br_obj"] = None
         if (b.dmg_taken > 0 or b.nearest_enemy(5) is not None) and b.retreat():
             return True
         return b.recall() or b.flee()
     if (b.type != CT.TAVI and b.gems == 0 and b.gold >= 150 and not b.enemies and b.dmg_taken <= 0
             and b.spawn_field.get(b.pos) > 8):
+        b.claim(None)
+        b.mem["br_obj"] = None
         return b.recall()
     return False
