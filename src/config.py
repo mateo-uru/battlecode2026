@@ -98,9 +98,9 @@ HEAL_UNTIL = 0.95           # stay on spawn until this share
 BANK_MIN = 20               # bag that is always worth a trip when the altar is close
 BANK_PER_TILE = 0.6         # extra gems required per tile of distance to the altar
 BANK_MAX = 60               # never walk around with more than this
-BANK_FOLLOWER = 30          # followers bank alone from this bag on
+BANK_FOLLOWER = 20          # followers bank alone from this bag on
 ESCORT_BAG = 40             # the group escorts a leader banking at least this many gems
-SPLIT_REWARD = 60           # rewards this large are split among all members present
+SPLIT_REWARD = 25           # rewards this large are split among all members present
 
 # --- Camps --------------------------------------------------------------------------------------
 BIG_CAMPS = (1, 4, 5)       # elk, monolith, golem: tank-first protocol ...
@@ -125,9 +125,9 @@ GROUP_DAMAGE = 0.75         # share of camp damage a group really takes (stuns, 
 MAX_DAMAGE_SHARE = 0.6      # skip camps whose expected damage exceeds this share of the team's health
 
 # --- Safety features (switches for A/B tests) -------------------------------------------------
-AVOID_BYSTANDERS = False     # area effects / Varg splash never hit sleeping camps outside the target
-HAZARD_FLEE = False          # step out of reach of awake monoliths/golems that are not our fight
-LONE_HOME = False            # acting leader with no safe target walks home instead of idling
+AVOID_BYSTANDERS = True     # area effects / Varg splash never hit sleeping camps outside the target
+HAZARD_FLEE = True          # step out of reach of awake monoliths/golems that are not our fight
+LONE_HOME = True            # acting leader with no safe target walks home instead of idling
 
 # --- Shop ---------------------------------------------------------------------------------------
 # Item names per role; each shard is bought until its emblem completes (5 shards), then the next.

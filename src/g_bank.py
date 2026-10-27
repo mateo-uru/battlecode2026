@@ -1,5 +1,3 @@
-"""Bank gene (from goldrush, gen 2): bank at 40 gems (gen 1: 40; goldrush lost 86 carried gems per lost game), or at once with
-15+ gems when an enemy is in sight, or when an altar is within 4."""
 import cambc
 from body import Team
 
@@ -13,10 +11,11 @@ def act(b):
     if b.W * b.H == 2050 and b.round < b.mem.get("bank_wait", 0):
         return False
     ad = b.altar_dist()
-    late = b.round + ad + 30 >= b.max_rounds
+    late = b.round + ad + 35 >= b.max_rounds
     win = cambc.global_submitted_gems(Team.ALLY) + b.gems >= b.win_gems
-    hot = b.gems >= 15 and any(u.d <= 8 and not u.in_spawn for u in b.enemies)
-    want = b.mem.get("banking") or b.gems >= 40 or ad <= 4 or late or win or hot
+    hot = (b.gems >= 14 and any(u.d <= 8 and not u.in_spawn for u in b.enemies)) or (b.gems >= 20 and b.hpf < 0.48)
+    near_altar = (b.gems >= 12 and ad <= 5) or (b.gems >= 24 and ad <= 8)
+    want = b.mem.get("banking") or b.gems >= 38 or ad <= 4 or near_altar or late or win or hot
     b.mem["banking"] = want
     if not want:
         return False
@@ -31,4 +30,5 @@ def act(b):
             b.mem["bank_st"] = 0
             b.mem["bank_wait"] = b.round + 80
             return False
+    b.claim(None)
     return b.go_altar()
