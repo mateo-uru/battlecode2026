@@ -908,7 +908,7 @@ class Body:
         if not use_reset:
             return True
         for e in self.abil:
-            if e[1] == K_RESET and not e[5] and self.ab_ready(e):
+            if e[1] == K_RESET and self.ab_ready(e):
                 if self.use(e, None):
                     self.attacked = False
                     self.can_attack = True
@@ -938,8 +938,8 @@ class Body:
                         return True
                 elif self.use(e, u.c):
                     return True
-            elif k == K_RESET and e[5] and d <= self.arange and self.ab_ready(e) and self.can_attack:
-                if self.use(e, None):       # Marcella: enhanced (stunning) attack
+            elif k == K_DASH and e[4] > 0 and d <= e[2] + 1 and self.ab_ready(e):
+                if self.dash_stun(e, u.x, u.y):
                     return True
         return False
 
@@ -980,6 +980,44 @@ class Body:
                     return True
             elif self.use(e, best.c):
                 return True
+        for e in self.abil:
+            if e[1] == K_DASH and e[4] > 0 and len(targets) >= 2 and self.ab_ready(e):
+                c0 = targets[0]
+                if cheb(self.x, self.y, c0.x, c0.y) <= e[2] + 1 and self.dash_stun(e, c0.x, c0.y):
+                    return True
+        return False
+
+    def dash_stun(self, e, tx, ty):
+        occ = self.occ()
+        rng = int(e[2]) if e[2] else 2
+        best = None
+        for dx in range(-rng, rng + 1):
+            for dy in range(-rng, rng + 1):
+                if dx == 0 and dy == 0:
+                    continue
+                nx = self.x + dx
+                ny = self.y + dy
+                if nx < 0 or ny < 0 or nx >= self.W or ny >= self.H:
+                    continue
+                if cheb(nx, ny, tx, ty) > 1:
+                    continue
+                v = Vec2(nx, ny)
+                if self.block.is_set(v) or occ.is_set(v):
+                    continue
+                d = cheb(nx, ny, tx, ty)
+                if best is None or d < best[0]:
+                    best = (d, v)
+        if best is None:
+            return False
+        try:
+            if e[0].use(best[1]):
+                self.cast = True
+                was = self.moved
+                self._moved_to(best[1])
+                self.moved = was
+                return True
+        except Error:
+            pass
         return False
 
     def heal_allies(self, min_missing=150):
@@ -1163,9 +1201,16 @@ class Body:
         if use_spells:
             self.spells_on_camps(targets)
         inr = None
+        best_adj = -1
         for ci in targets:
-            if cheb(self.x, self.y, ci.x, ci.y) <= self.arange and (inr is None or ci.hp < inr.hp):
-                inr = ci
+            if cheb(self.x, self.y, ci.x, ci.y) <= self.arange:
+                if self.type == CT.VARG and len(targets) >= 2:
+                    adj = sum(1 for cj in targets if abs(cj.x - ci.x) <= 1 and abs(cj.y - ci.y) <= 1)
+                    if inr is None or (adj, -ci.hp) > (best_adj, -inr.hp):
+                        best_adj = adj
+                        inr = ci
+                elif inr is None or ci.hp < inr.hp:
+                    inr = ci
         if inr is not None and self.can_attack:
             self.attack_reset(inr.c)
             if self.ranged:

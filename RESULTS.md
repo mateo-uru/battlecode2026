@@ -1,6 +1,10 @@
 # Arena results
 
-`src/` is the V3 bot: the frozen baseline, the V2 map split cap, and four further edits in `picker.py`, `body.py`, `g_farm.py`, and `g_bank.py`. The write-up is `STRATEGY_V3.md`. This file is the score of that bot on this machine.
+`src/` is now `M3_omega_final` (Patch 2.0.0). The package adds `cambc.toml` (`name = "bbot"`, Python) and the report in `STRATEGY_V4_PATCH2.md`. That report, on Engine 2.0.0 / CLI 4.0.0, is 15/20 against `A_v3_base` (+5,562 gems, +117 kills minus deaths, 0 crashes) across 10 maps from both sides. This machine checked `python3 -m py_compile src/*.py` and did not re-run that 20-game benchmark.
+
+The tables below are the earlier CLI 3.0.5 measurement of the V3 bot, kept so that record stays in the repo. They are not the score of `M3_omega_final`.
+
+`src/` at the time of those tables was the V3 bot: the frozen baseline, the V2 map split cap, and four further edits in `picker.py`, `body.py`, `g_farm.py`, and `g_bank.py`. The write-up for that bot is `STRATEGY_V3.md`.
 
 Games were `cambc run --release` with CLI 3.0.5, a 2000-round limit, and 3 workers. The baseline suite finished at 21:32 Europe/Madrid and the starter suite at 21:46 Europe/Madrid on 25 October 2026. A win is the engine's winner (gems, then gold earned, then kills, then team B). Gem differential is our tributed gems minus the opponent's, summed over all 80 games. Gold differential is the same sum for gold earned.
 
