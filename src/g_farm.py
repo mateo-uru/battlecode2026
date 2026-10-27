@@ -31,6 +31,14 @@ def pick(b):
         c_cnt = counts.get(g.i, 0)
         r = b.round
         d = (b._gd or b.group_dists())[g.i]
+        if g.field is not None or d <= 16:
+            wd = b.walk_dist(g)
+            if wd >= 60000:
+                if not (g.island and b.has_dash):
+                    g.bad = True
+                    continue
+            else:
+                d = wd
         if g.state == 3:
             if g.ready > r + d + 6:
                 continue

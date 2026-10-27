@@ -72,3 +72,27 @@ All tournaments were executed on **Engine 2.0.0 (`cambc 4.0.0`)** across 10 comp
 3. **Ranged Camp Kiting & Emblem-Aware Farming (`src/g_farm.py` & `src/g_fight.py`):**
    - Ranged champions (`Tavi`, `Vesper Vale`) kite melee camps at maximum attack range (`kite=b.ranged`) instead of face-tanking at Chebyshev distance 1.
    - Camp clear-time and survival-ratio calculations dynamically incorporate `has_MONSTER` (`1.15x` DPS), `has_JUNGLE` (`0.70x` camp damage), `has_DURABILITY` (`0.90x` damage), `has_PROSPECTOR` (`1.25x` cluster value), and `has_CAPTURE` (`3`-turn capture window).
+
+---
+
+## 5. Stage N Multi-Specialist QA Audit & `N9_full_omega_qa` (`v166`) Upgrade
+
+### Live Ladder Telemetry of `v165` (`M3_omega_final`)
+- After deploying `v165` (`5570d708-c981-402d-b304-a61c739f7e52`), Team 921 climbed **+28 ranks** (`#385 -> #357` peak, `1517 -> 1549.03` rating) with **0 bot faults** across 40 live games (`63.6%` WR on 5-champion maps, `62.5%` WR on 4-champion maps).
+- Live match summary forensics + multi-specialist QA (`@App Security Tester`, `@Web Developer`, `@yuyis`) identified **5 high-impact vulnerabilities** explaining the remaining losses on 3-champion maps (`02the_pond`, `00fragment`), compact corridors (`00the-line`), and `deimos` maps (`00swirl`, `00gemfight`):
+  1. **P0 Ghost `Altar Lock` Gold Leak (`src/g_extra.py:8-11` & `src/g_shop.py:28-29`):** `g_extra.py` cast `lock_altar` whenever `not b.enemies`, burning `440g` (`11` Altar Locks = ~3 full emblems!) on empty altars in `02the_pond` (lost `606 : 627`). Fixed to only cast `lock_altar` when a visible enemy is channeling (`u.st & 4`) or carrying `>= 12` gems within 3 tiles of an altar, and gated purchase behind `n >= 10` (2 completed emblems).
+  2. **P0 Broken `b.odds()` Ally Scaling (`src/body.py:478-479, 1130-1134`):** `Body.allies` hardcoded `u.str = 0` and `u.foc = 0`, causing `b.odds()` to evaluate all allies using static level-1 base attack (`45..79`) while reading scaled `u.str + 0.3 * u.foc` (`150..350+`) for enemies. Fixed to read `_bc.champion_get(ch, 5)` (`str`) and `_bc.champion_get(ch, 6)` (`foc`) for allies.
+  3. **P0 3-Champion Missing Frontline + Compact Map (`area <= 1200`) Draft & Shop (`src/g_draft.py`, `src/g_shop.py`, `src/body.py:986`):** Put `Varg` first on open 3-champion maps (`[Varg, Tavi, Vesper Vale, Vendetta]`), switched compact maps (`area <= 1200`, e.g. `00the-line` `33x33` and `adgato-gemcombat1` `31x31`) to Brawler draft + combat-first emblems (`Monster -> Durability -> Bruiser` / `Monster -> Skirmish -> Durability`), flexed `Marcella` against `>= 3` enemy stunners on 5-champion maps, and kept `K_DASH` off camps on compact maps / when enemies are visible.
+  4. **P1 Split-Brain Pre-Patch `deimos` Config (`src/config.py`):** Updated `T_TAVI: "marksman"` and Patch 2.0.0 shard build orders for `deimos`-routed maps (`00gemfight`, `00swirl`, `00elkring`).
+  5. **P1 Systems QA (`src/body.py`, `src/g_farm.py`, `src/g_fight.py`, `src/g_survive.py`):** Released camp claims (`b.claim(None); b.mem["br_obj"] = None`) on retreat/recall, guarded `g.hp_left` against partial-vision overwrites, used true BFS `b.walk_dist(g)` when `d <= 16`, and allowed ranged `AttackReset` after stepping into range.
+
+### Stage N Verified Benchmark Results (20 Games per Candidate: 10 Maps × Both Sides vs `A_v3_base`)
+
+| Candidate | Record | Win % | Gems For : Against (Diff) | Kills : Deaths (Diff) | Faults | Per-Map W-L Breakdown |
+| :--- | :---: | :---: | :---: | :---: | :---: | :--- |
+| **`N9_full_omega_qa` (Submitted `v166`)** | **14 - 6** | **70.0%** | **15,227 : 10,808 (`+4,419`)** | **339 : 291 (`+48`)** | **0** | `rushb:2-0` `broke:2-0` `the-f:2-0` `gato-:2-0` `the-l:1-1` `monol:1-1` `elk-a:1-1` `geode:1-1` `gemfi:1-1` `swirl:1-1` |
+| **`N1_fix_lock_and_deimos`** | **14 - 6** | **70.0%** | **16,085 : 11,689 (`+4,396`)** | **382 : 304 (`+78`)** | **0** | `broke:2-0` `elk-a:2-0` `the-f:2-0` `gato-:2-0` `the-l:1-1` `rushb:1-1` `monol:1-1` `geode:1-1` `gemfi:1-1` `swirl:1-1` |
+| **`N7_qa_systems_plus_n5`** | **14 - 6** | **70.0%** | **14,825 : 11,570 (`+3,255`)** | **328 : 308 (`+20`)** | **0** | `rushb:2-0` `broke:2-0` `elk-a:2-0` `the-f:2-0` `geode:2-0` `the-l:1-1` `gato-:1-1` `gemfi:1-1` `swirl:1-1` `monol:0-2` |
+| **`M3_omega_final` (Previous `v165`)** | **13 - 7** | **65.0%** | **13,343 : 11,228 (`+2,115`)** | **312 : 319 (`-7`)** | **0** | `rushb:2-0` `broke:2-0` `elk-a:2-0` `the-f:2-0` `geode:2-0` `gato-:2-0` `monol:1-1` `the-l:0-2` `gemfi:0-2` `swirl:0-2` |
+| **`N10_compact_brawler_plus_qa`** | 12 - 8 | 60.0% | 15,245 : 11,756 (`+3,489`) | 347 : 301 (`+46`) | 0 | `rushb:2-0` `gato-:2-0` `the-l:1-1` `monol:1-1` `broke:1-1` `elk-a:1-1` `the-f:1-1` `geode:1-1` `gemfi:1-1` `swirl:1-1` |
+| **`N2_force_bbot_all`** | 12 - 8 | 60.0% | 14,514 : 13,048 (`+1,466`) | 246 : 390 (`-144`) | 0 | `broke:2-0` `elk-a:2-0` `the-f:2-0` `gato-:2-0` `the-l:1-1` `rushb:1-1` `monol:1-1` `geode:1-1` `gemfi:0-2` `swirl:0-2` |
