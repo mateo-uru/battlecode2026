@@ -93,12 +93,14 @@ def draft_info():
     n = {WOLF: 0, ELK: 0, GEM_CLUSTER: 0, GOLD_CLUSTER: 0, MONOLITH: 0}
     groups = 0
     gems = 0
+    gold = 0
     big_gems = 0
     near_gems = 0
     for g in game_map.camp_groups():
         groups += 1
         gv = g.gem_value()
         gems += gv
+        gold += g.gold_value()
         hp = 0
         cx = 0
         cy = 0
@@ -120,6 +122,7 @@ def draft_info():
                 near_gems += gv
     info["groups"] = groups
     info["gems"] = gems
+    info["gold"] = gold
     info["big_gems"] = big_gems
     info["big_frac"] = big_gems / max(1, gems)
     info["near_gems"] = near_gems
@@ -148,7 +151,7 @@ def run_draft(gene, genome_id):
         try:
             info = draft_info()
         except Exception:
-            info = {"W": 50, "H": 50, "area": 2500, "groups": 10, "gems": 300, "big_frac": 0.0, "monoliths": 0,
+            info = {"W": 50, "H": 50, "area": 2500, "groups": 10, "gems": 300, "gold": 200, "big_frac": 0.0, "monoliths": 0,
                     "elks": 0, "wolves": 0, "gem_clusters": 0, "gold_clusters": 0, "bushes": 0, "walls": 0,
                     "spawn_d": 40, "near_gems": 150, "big_gems": 0, "altars": 2}
         _DRAFT_INFO = info
@@ -198,6 +201,9 @@ class Body:
         self.stuck = 0
         self.last_hp = None
         self.errors = 0
+        self.team_size = 0
+        self._wd_calls = 0
+        self._altar_fields = None
 
     # ------------------------------------------------------------------ init
     def init(self):
@@ -339,6 +345,7 @@ class Body:
                 t = g.tiles[0]
                 g.home_walk = sf.get(Vec2(t[0], t[1]))
         self._altar_field = None
+        self._altar_fields = None
         self.total_gems = sum(g.gems for g in self.groups)
         self.ready = True
 
@@ -393,6 +400,7 @@ class Body:
         self.lock_move = False
         self.attacked = False
         self.cast = False
+        self._wd_calls = 0
         self.enemies = []
         if not self.alive:
             self.last_hp = None
@@ -475,8 +483,8 @@ class Body:
                     u.type = _bc.champion_identity(ch, 1)
                     u.gems = _bc.champion_gems(ch)
                     u.st = 0
-                    u.str = 0
-                    u.foc = 0
+                    u.str = _bc.champion_get(ch, 5)
+                    u.foc = _bc.champion_get(ch, 6)
                     dx = q.x - x
                     dy = q.y - y
                     if dx < 0:
@@ -589,7 +597,10 @@ class Body:
             for gi, hp in seen.items():
                 g = self.groups[gi]
                 g.state = 1
-                g.hp_left = hp
+                if (_bc.vision() & g.mask).count() >= len(g.tiles):
+                    g.hp_left = hp
+                else:
+                    g.hp_left = max(hp, min(g.hp, g.hp_left))
 
     def group_at_tile(self):
         """Camp group whose spawn tiles include my tile, or None."""
@@ -704,6 +715,27 @@ class Body:
             elif d == cur + 1 and stuck >= 3 and (nx, ny) != prev:
                 opts.append((d + extra, 2, nx, ny, v, d))
         opts.sort(key=lambda o: (o[0], o[1]))
+        has_forward = any(o[1] == 0 and (o[2], o[3]) != prev for o in opts)
+        if not has_forward and cur < INF and cambc.fuel_remaining() > 650000:
+            goals = Bitboard()
+            for gx in range(max(0, self.x - 6), min(W, self.x + 7)):
+                for gy in range(max(0, self.y - 6), min(H, self.y + 7)):
+                    gv = Vec2(gx, gy)
+                    if not block.is_set(gv) and not occ.is_set(gv) and f.get(gv) < cur:
+                        goals.set(gv)
+            if not goals.is_empty() and self.step_to(goals, avoid):
+                self.stuck = 0
+                return True
+            if self.can_attack:
+                blockers = [
+                    ci for ci in self.camps()
+                    if ci.kind != MONOLITH
+                    and cheb(self.x, self.y, ci.x, ci.y) <= self.arange
+                    and f.get(Vec2(ci.x, ci.y)) <= cur
+                ]
+                if blockers:
+                    self.fight_camps(blockers, kite=False)
+                    return True
         here = (self.x, self.y)
         for _, _, nx, ny, v, d in opts:
             try:
@@ -849,6 +881,8 @@ class Body:
         return self.travel(self.gfield(g), stop_at, dash)
 
     def walk_dist(self, g):
+        if g.field is None and cambc.fuel_remaining() < 500000:
+            return max(1, cheb(self.x, self.y, g.cx, g.cy))
         return self.gfield(g).get(self.pos)
 
     # ------------------------------------------------------------- abilities
@@ -980,11 +1014,12 @@ class Body:
                     return True
             elif self.use(e, best.c):
                 return True
-        for e in self.abil:
-            if e[1] == K_DASH and e[4] > 0 and len(targets) >= 2 and self.ab_ready(e):
-                c0 = targets[0]
-                if cheb(self.x, self.y, c0.x, c0.y) <= e[2] + 1 and self.dash_stun(e, c0.x, c0.y):
-                    return True
+        if not self.enemies and self.W * self.H > 1200:
+            for e in self.abil:
+                if e[1] == K_DASH and e[4] > 0 and len(targets) >= 2 and self.ab_ready(e):
+                    c0 = targets[0]
+                    if cheb(self.x, self.y, c0.x, c0.y) <= e[2] + 1 and self.dash_stun(e, c0.x, c0.y):
+                        return True
         return False
 
     def dash_stun(self, e, tx, ty):
@@ -1127,7 +1162,7 @@ class Body:
         if ne:
             for a in self.allies:
                 if a.d <= ally_radius:
-                    h, d = PLAN.get(a.type, (900, 55))
+                    d = max(a.str + int(a.foc * 0.3), PLAN.get(a.type, (900, 55))[1], 30)
                     mine += a.hp * d
         return mine, theirs, ne
 
@@ -1169,8 +1204,14 @@ class Body:
         if d > self.arange and not self.moved:
             self.step_toward(u.x, u.y, self.arange)
         d = cheb(self.x, self.y, u.x, u.y)
-        if d <= self.arange and not self.ranged:
-            self.attack_reset(u.c)
+        if d <= self.arange:
+            if not self.ranged:
+                self.attack_reset(u.c)
+            elif not self.attacked:
+                for e in self.abil:
+                    if e[1] == K_RESET and self.ab_ready(e) and self.use(e, None):
+                        self.try_attack(u.c)
+                        break
         return True
 
     def flee(self, dash=True):
@@ -1198,14 +1239,16 @@ class Body:
     # ---------------------------------------------------------------- camps
     def fight_camps(self, targets, kite=True, use_spells=True):
         """Damage the visible camps in targets; approach if nothing is in range."""
-        if use_spells:
-            self.spells_on_camps(targets)
         inr = None
         best_adj = -1
         for ci in targets:
             if cheb(self.x, self.y, ci.x, ci.y) <= self.arange:
                 if self.type == CT.VARG and len(targets) >= 2:
-                    adj = sum(1 for cj in targets if abs(cj.x - ci.x) <= 1 and abs(cj.y - ci.y) <= 1)
+                    near_mono = any(
+                        m.kind == MONOLITH and not m.awake and cheb(ci.x, ci.y, m.x, m.y) <= 2
+                        for m in self.camps()
+                    )
+                    adj = -10 if near_mono else sum(1 for cj in targets if abs(cj.x - ci.x) <= 1 and abs(cj.y - ci.y) <= 1)
                     if inr is None or (adj, -ci.hp) > (best_adj, -inr.hp):
                         best_adj = adj
                         inr = ci
@@ -1213,8 +1256,12 @@ class Body:
                     inr = ci
         if inr is not None and self.can_attack:
             self.attack_reset(inr.c)
+            if use_spells:
+                self.spells_on_camps(targets)
             if self.ranged:
                 return True
+        elif use_spells:
+            self.spells_on_camps(targets)
         if not self.moved and inr is None:
             goals = Bitboard()
             for ci in targets:
@@ -1227,11 +1274,16 @@ class Body:
                 if not (ring & ~self.block & ~self.occ()).is_empty():
                     goals = ring
             self.step_to(goals)
-            if not self.ranged and self.can_attack:
-                for ci in targets:
-                    if cheb(self.x, self.y, ci.x, ci.y) <= self.arange:
+            for ci in targets:
+                if cheb(self.x, self.y, ci.x, ci.y) <= self.arange:
+                    if not self.ranged and self.can_attack:
                         self.attack_reset(ci.c)
-                        break
+                    elif self.ranged and not self.attacked:
+                        for e in self.abil:
+                            if e[1] == K_RESET and self.ab_ready(e) and self.use(e, None):
+                                self.try_attack(ci.c)
+                                break
+                    break
         return True
 
     def ring_tiles(self, g, r):
@@ -1379,14 +1431,59 @@ class Body:
         return True
 
     # ---------------------------------------------------------------- banking
+    def best_altar_target(self):
+        if not self.altar_pos:
+            return self.W // 2, self.H // 2, self.altar_field
+        if len(self.altar_pos) == 1:
+            ax, ay = self.altar_pos[0]
+            return ax, ay, self.altar_field
+        if self._altar_fields is None:
+            self._altar_fields = {}
+        best = None
+        for ax, ay in self.altar_pos:
+            f = self._altar_fields.get((ax, ay))
+            if f is None:
+                if cambc.fuel_remaining() < 550000:
+                    return self.altar_pos[0][0], self.altar_pos[0][1], self.altar_field
+                b = Bitboard()
+                b.set(Vec2(ax, ay))
+                f = DistanceField()
+                f.compute(self.walk_walls, b, Bitboard())
+                self._altar_fields[(ax, ay)] = f
+            d = f.get(self.pos)
+            pen = 4 * min(3, self.danger_at(ax, ay, 5, 10))
+            try:
+                v = Vec2(ax, ay)
+                if vision.has_altar_lock(v) and vision.altar_lock_at(v).is_enemy():
+                    pen += 10
+            except Exception:
+                pass
+            score = d + pen
+            if best is None or score < best[0]:
+                best = (score, ax, ay, f)
+        return best[1], best[2], best[3]
+
     def adjacent_altar(self):
         rng = cambc.constants.SUBMIT_GEMS_RANGE
+        adj = []
         for ax, ay in self.altar_pos:
             if cheb(ax, ay, self.x, self.y) <= rng:
+                adj.append((ax, ay))
+        if not adj:
+            return None
+        for ax, ay in adj:
+            try:
+                v = Vec2(ax, ay)
+                if not (vision.has_altar_lock(v) and vision.altar_lock_at(v).is_enemy()):
+                    return ax, ay
+            except Exception:
                 return ax, ay
-        return None
+        return adj[0]
 
     def altar_dist(self):
+        if self.W * self.H == 2000 and self.altar_pos:
+            _, _, f = self.best_altar_target()
+            return INF if f is None else f.get(self.pos)
         f = self.altar_field
         if f is None:
             return INF
@@ -1403,8 +1500,10 @@ class Body:
             if vision.has_altar_lock(v):
                 lock = vision.altar_lock_at(v)
                 if lock.is_enemy():
+                    if any(u.d <= 4 and not u.in_spawn for u in self.enemies):
+                        return False
                     if self.can_attack:
-                        self.try_attack(lock)
+                        self.attack_reset(lock)
                     return True
         except Exception:
             pass
@@ -1421,7 +1520,6 @@ class Body:
         if f is None:
             return False
         if f.get(self.pos) >= INF:
-            # no walking path to any altar from here (island): recall, then walk from spawn
             return self.recall() or True
         self.travel(f, 1, dash)
         return True
@@ -1527,7 +1625,7 @@ class Body:
         gn = self.genome
         if not self.ready:
             self.init()
-            if cambc.fuel_remaining() < 1500000:
+            if cambc.fuel_remaining() < 450000:
                 return
         self.refresh()
         if not self.alive:

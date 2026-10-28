@@ -10,7 +10,12 @@ def _build_fams(b):
     for g in b.groups:
         if GEM_CLUSTER in g.kinds or GOLD_CLUSTER in g.kinds:
             c_gems += g.gems + g.gold // 3
-    if c_gems >= 25:
+    if b.W * b.H <= 1200:
+        if b.ranged:
+            fams = ["MONSTER", "SKIRMISH", "DURABILITY", "JUNGLE", "COLLECTORS", "CAPTURE", "BRUISER"]
+        else:
+            fams = ["MONSTER", "DURABILITY", "BRUISER", "JUNGLE", "SKIRMISH", "COLLECTORS", "CAPTURE"]
+    elif c_gems >= 25:
         fams = ["PROSPECTOR", "MONSTER", "CAPTURE", "JUNGLE", "DURABILITY", "SKIRMISH", "COLLECTORS", "BRUISER"]
     elif b.ranged:
         fams = ["MONSTER", "CAPTURE", "DURABILITY", "JUNGLE", "SKIRMISH", "COLLECTORS", "BRUISER"]
@@ -21,11 +26,11 @@ def _build_fams(b):
 
 
 def shop(b):
-    if b.gold < 10:
+    if b.gold < 30:
         return
-    # Buy Altar Lock once we have at least 1 emblem (n >= 5) and spare 10g
     n = b.mem.get("gr_n", 0)
-    if b.alive and n >= 5 and (b.gold % 30 >= 10 or b.gold >= 160):
+    # Buy Altar Lock (40g) only after 2 full emblems (n >= 10) and when spare gold >= 40
+    if b.alive and n >= 10 and (b.gold % 30 >= 10 and b.gold >= 40 or b.gold >= 190):
         b.buy_consumable(ConsumableType.ALTAR_LOCK)
 
     if b.gold < 30:
@@ -43,7 +48,6 @@ def shop(b):
         elif fam == "JUNGLE":
             st = "HEALTH" if not b.ranged else stat
         elif fam == "BRUISER":
-            # Alternate primary stat Bruiser (5 stat + 1 hp + 1 other) and Health Bruiser (5 hp + 1 str + 1 foc)
             st = "HEALTH" if (emblem_slot % 3 == 1) else stat
         else:
             st = stat
