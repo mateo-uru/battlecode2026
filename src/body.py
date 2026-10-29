@@ -1520,7 +1520,8 @@ class Body:
         if f is None:
             return False
         if f.get(self.pos) >= INF:
-            return self.recall() or True
+            # unreachable altar: recall if possible, else let farm/fight genes run (no spawn idle)
+            return self.recall()
         self.travel(f, 1, dash)
         return True
 

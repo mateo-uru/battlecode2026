@@ -10,12 +10,10 @@ def act(b):
         return False
     if b.try_submit():
         return True
-    if len(b.altar_pos) > 1 and (b.W * b.H == 1085) and cambc.fuel_remaining() >= 550000:
-        return False
     if b.round < b.mem.get("bank_wait", 0):
         return False
     ad = b.altar_dist()
-    late = b.round + ad + 35 >= b.max_rounds
+    late = ad < 1000 and (b.round + ad + 35 >= b.max_rounds)
     win = cambc.global_submitted_gems(Team.ALLY) + b.gems >= b.win_gems
     hot = (b.gems >= 14 and any(u.d <= 8 and not u.in_spawn for u in b.enemies)) or (b.gems >= 20 and b.hpf < 0.48)
     near_altar = (b.gems >= 12 and ad <= 5) or (b.gems >= 24 and ad <= 8)

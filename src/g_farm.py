@@ -114,10 +114,6 @@ def act(b):
         b.mem["br_t"] = b.round
         b.claim(g)
     if g is None:
-        if len(b.altar_pos) > 1 and (b.W * b.H == 1085) and cambc.fuel_remaining() >= 550000:
-            if b.gems <= 0 and not b.at_spawn and b.W * b.H == 2040 and (b.hpf < 0.85 or b.gold >= 60):
-                return b.recall() or b.go_home()
-            return False
         if b.gems > 0:
             return b.go_altar()
         if not b.at_spawn and b.W * b.H == 2040 and (b.hpf < 0.85 or b.gold >= 60):
