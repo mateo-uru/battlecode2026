@@ -1149,7 +1149,7 @@ class Body:
         dm = self._dm if self._dm is not None else self.danger_map()
         return bool(dm) and (g.cx // 6, g.cy // 6) in dm
 
-    def odds(self, radius=7, ally_radius=5):
+    def odds(self, radius=7, ally_radius=7):
         """(mine, theirs, n_enemies): effective power (health x damage) of the visible allies
         within ally_radius plus me, against all visible enemies within radius (not in spawn)."""
         mine = self.hp * (self.str + 0.3 * self.foc)
@@ -1162,8 +1162,7 @@ class Body:
         if ne:
             for a in self.allies:
                 if a.d <= ally_radius:
-                    d = max(a.str + int(a.foc * 0.3), PLAN.get(a.type, (900, 55))[1], 30)
-                    mine += a.hp * d
+                    mine += a.hp * (a.str + 0.3 * a.foc)
         return mine, theirs, ne
 
     def retreat(self, from_u=None):
@@ -1522,6 +1521,9 @@ class Body:
         if f.get(self.pos) >= INF:
             # unreachable altar: recall if possible, else let farm/fight genes run (no spawn idle)
             return self.recall()
+        if f.get(self.pos) <= 1 and any(u.d <= 4 and not u.in_spawn for u in self.enemies):
+            # adjacent but the submit failed (enemy lock / contested): let fight/survive act (peer QA 10-31)
+            return False
         self.travel(f, 1, dash)
         return True
 

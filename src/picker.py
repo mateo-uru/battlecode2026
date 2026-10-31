@@ -18,6 +18,11 @@ SRC_MAPS = {
     (41, 30, 36, 22, 1, 24): SRC,        # eight        1011:11, 1005:161   +1844
     (80, 80, 664, 58, 2, 78): SRC,       # starvation   608:368, 656:116    +780
     (90, 30, 0, 76, 18, 144): SRC,       # lanes        1002:431, 1004:941  +634
+    # Stage Y 10-31: src beat v173 bbot 2-0 (both sides) and bbot was 1-9/2-7/2-12/2-9 on the ladder
+    (61, 61, 432, 359, 1, 93): SRC,      # crater
+    (93, 93, 1292, 16, 2, 170): SRC,     # galaxy
+    (50, 40, 148, 0, 6, 76): SRC,        # the-farm
+    (51, 51, 186, 10, 3, 210): SRC,      # crossing
 }
 
 _choice = None
