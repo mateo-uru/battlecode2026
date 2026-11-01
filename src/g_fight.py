@@ -1,4 +1,4 @@
-"""Fight gene (disciplined altar-denier & bag-punisher)."""
+"""Fight gene (disciplined altar-denier & bag-punisher, releases camp claims on retreat)."""
 
 
 def act(b):
@@ -27,6 +27,8 @@ def act(b):
         need += 0.3
     if b.hpf >= 0.35 and mine >= theirs * need:
         return b.engage(u)
-    if u.d <= 3:
+    if u.d <= 3 or (u.d <= 6 and mine < theirs * 0.8):
+        b.claim(None)
+        b.mem["br_obj"] = None
         return b.retreat(u)
     return False
