@@ -52,7 +52,7 @@ def pick(b):
         clear = 0 if g.state == 2 else g.hp_left / max(1.0, eff_dps)
         eff_dmg = g.dmg * dmg_mult
         ratio = (eff_dmg * clear) / max(1.0, b.hp)
-        max_ratio = 3.5 if (g.elk and g.gems > 0 and b.round >= 1000 and b.W * b.H == 3000) else 2.0
+        max_ratio = 3.5 if (g.elk and g.gems > 0 and b.round >= 1000 and b.W * b.H == 3000) else 1.6
 
         if ratio <= max_ratio:
             max_c = 2 if (g.harmless and (g.hp_left >= 2500 or g.gems >= 20)) else 1
