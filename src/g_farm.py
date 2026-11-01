@@ -45,7 +45,7 @@ def pick(b):
             else:
                 d = wd
         if g.state == 3:
-            if g.ready > r + d + 6:
+            if g.ready > r + d + 16:
                 continue
             d = max(d, g.ready - r)
         eff_dps = dps * (1.3 if (b.type == CT.VARG and len(g.tiles) >= 2) else 1.0)
