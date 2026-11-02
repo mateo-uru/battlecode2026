@@ -23,6 +23,12 @@ SRC_MAPS = {
     (93, 93, 1292, 16, 2, 170): SRC,     # galaxy
     (50, 40, 148, 0, 6, 76): SRC,        # the-farm
     (51, 51, 186, 10, 3, 210): SRC,      # crossing
+    (31, 31, 0, 72, 4, 46): SRC,  # gold-rush (stage R3 11-02 brain sweep)
+    (41, 41, 198, 264, 1, 28): SRC,  # fan (stage R3 11-02 brain sweep)
+    (37, 29, 100, 128, 2, 36): SRC,  # membrane (stage R3 11-02 brain sweep)
+    (67, 73, 26, 2238, 1, 10): SRC,  # ultrastarvation (stage R3 11-02 brain sweep)
+    (51, 31, 76, 340, 1, 50): SRC,  # gemcombat2 (stage R3 11-02 brain sweep)
+    (41, 61, 44, 1162, 1, 84): SRC,  # gemcombat4 (stage R3 11-02 brain sweep)
 }
 
 _choice = None
@@ -41,6 +47,8 @@ def map_key():
 BBOT_MAPS = {
     (45, 30, 30, 354, 2, 14),     # swirl
     (100, 100, 540, 1832, 4, 132),  # ambush
+    (84, 83, 864, 970, 4, 106),  # riverbed (stage R3: bbot 2-0 vs src)
+    (61, 41, 140, 369, 34, 56),  # the-front (stage R3: bbot 2-0 vs src)
 }
 
 

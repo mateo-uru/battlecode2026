@@ -113,6 +113,8 @@ def act(b):
         b.mem["br_obj"] = g
         b.mem["br_t"] = b.round
         b.claim(g)
+    elif b.slot < 6 and b.mem_get(b.slot) != g.i + 1:
+        b.claim(g)
     if g is None:
         if b.gems > 0:
             return b.go_altar()
