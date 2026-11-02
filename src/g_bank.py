@@ -46,7 +46,7 @@ def act(b):
         # stuck on the way (e.g. the altar field runs through a living camp): no new closest
         # approach for 15 turns -> farm for 80 rounds, then try again
         best = b.mem.get("bank_ad", 9999)
-        st = 0 if (ad < best or ad <= 1) else b.mem.get("bank_st", 0) + 1
+        st = 0 if (ad < best or (ad <= 1 and not any(u.d <= 4 and not u.in_spawn for u in b.enemies))) else b.mem.get("bank_st", 0) + 1
         b.mem["bank_ad"] = min(ad, best)
         b.mem["bank_st"] = st
         if (st > 15 and b.gems < 30 and b.round < b.max_rounds - 200) or st > 40:

@@ -10,6 +10,8 @@ def act(b):
     if b.hpf < 0.35 or b.dmg_taken * 2.5 >= b.hp:
         if b.try_submit():
             return True
+        if b.gems >= 10 and b.altar_dist() <= 2 and b.go_altar():
+            return True
         b.claim(None)
         b.mem["br_obj"] = None
         if (b.dmg_taken > 0 or b.nearest_enemy(5) is not None) and b.retreat():
