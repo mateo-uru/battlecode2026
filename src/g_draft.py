@@ -15,12 +15,12 @@ def preferences(info, size, ally, enemy):
         return [DR.VARG, DR.VENDETTA, DR.RYTH, HOR_DRAFT, DR.REN, DR.CASSI_AND_ISSAC, DR.MARCELLA]
     if size <= 3 and info.get("area", 2500) > 1200:
         if enemy_stuns >= 2 and len(ally) >= 2:
-            return [DR.VESPER_VALE, DR.VARG, DR.TAVI, DR.MARCELLA, DR.VENDETTA, DR.CASSI_AND_ISSAC]
-        return [DR.VESPER_VALE, DR.VARG, DR.TAVI, DR.VENDETTA, DR.CASSI_AND_ISSAC, DR.MARCELLA]
+            return [DR.VESPER_VALE, DR.VARG, DR.MARCELLA, DR.VENDETTA, DR.REN, DR.TAVI, DR.CASSI_AND_ISSAC]
+        return [DR.VESPER_VALE, DR.VARG, DR.VENDETTA, DR.MARCELLA, DR.REN, DR.TAVI, DR.CASSI_AND_ISSAC]
     if size == 4 and info.get("area", 2500) > 1200:
         if enemy_stuns >= 2 and len(ally) >= 2:
-            return [DR.VESPER_VALE, DR.TAVI, DR.MARCELLA, DR.VENDETTA, DR.VARG, DR.CASSI_AND_ISSAC]
-        return [DR.VESPER_VALE, DR.TAVI, DR.VENDETTA, DR.VARG, DR.CASSI_AND_ISSAC, DR.MARCELLA]
+            return [DR.VESPER_VALE, DR.MARCELLA, DR.VENDETTA, DR.VARG, DR.REN, DR.TAVI, DR.CASSI_AND_ISSAC]
+        return [DR.VESPER_VALE, DR.VENDETTA, DR.VARG, DR.MARCELLA, DR.REN, DR.TAVI, DR.CASSI_AND_ISSAC]
     if info.get("monoliths", 0) > 0 and size >= 5 and info.get("area", 2500) >= 2000:
         return [DR.VARG, DR.VENDETTA, DR.RYTH, HOR_DRAFT, DR.REN, DR.CASSI_AND_ISSAC, DR.MARCELLA]
     if enemy_stuns >= 2 and len(ally) >= 2 and info.get("monoliths", 0) == 0:

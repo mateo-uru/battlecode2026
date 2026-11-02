@@ -11,7 +11,7 @@ def act(b):
         return False
     if b.try_submit():
         return True
-    if b.round < b.mem.get("bank_wait", 0) and b.gems < 30 and b.round < b.max_rounds - 200:
+    if b.round < b.mem.get("bank_wait", 0) and (b.gems < 30 or b.W * b.H == 1681) and b.round < b.max_rounds - 200:
         return False
     ad = b.altar_dist()
     late = ad < 1000 and (b.round + ad + 35 >= b.max_rounds)
