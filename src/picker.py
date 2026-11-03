@@ -26,6 +26,8 @@ SRC_MAPS = {
     (31, 31, 0, 72, 4, 46): SRC,  # gold-rush (stage R3 11-02 brain sweep)
     (41, 41, 198, 264, 1, 28): SRC,  # fan (stage R3 11-02 brain sweep)
     (37, 29, 100, 128, 2, 36): SRC,  # membrane (stage R3 11-02 brain sweep)
+    (35, 31, 196, 42, 3, 24): SRC,  # lost-world: ladder bbot 4-25 since v174
+    (50, 41, 139, 4, 1, 2): SRC,  # boss-battle: ladder bbot 5-19
     (67, 73, 26, 2238, 1, 10): SRC,  # ultrastarvation (stage R3 11-02 brain sweep)
     (51, 31, 76, 340, 1, 50): SRC,  # gemcombat2 (stage R3 11-02 brain sweep)
     (41, 61, 44, 1162, 1, 84): SRC,  # gemcombat4 (stage R3 11-02 brain sweep)

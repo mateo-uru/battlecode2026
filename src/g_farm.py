@@ -97,7 +97,7 @@ def pick(b):
         eff_dps = dps * (1.3 if (b.type == CT.VARG and len(g.tiles) >= 2) else 1.0)
         clear = 0 if g.state == 2 else g.hp_left / max(1.0, eff_dps)
         ratio = (g.dmg * dmg_mult * clear) / max(1.0, b.hp)
-        if ratio > 14.0:
+        if ratio > (14.0 if b.hpf >= 0.8 else 3.8):
             continue
         val = (g.gems + 0.15 * g.gold) * (1.0 + 0.45 * c_cnt)
         s = val / ((d * 1.2 + clear * 0.5 + cap_t) * max(1.0, ratio * 0.45))

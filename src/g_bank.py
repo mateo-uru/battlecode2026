@@ -1,3 +1,4 @@
+import picker as _pk
 import cambc
 from body import cheb
 from body import Team
@@ -11,7 +12,7 @@ def act(b):
         return False
     if b.try_submit():
         return True
-    if b.round < b.mem.get("bank_wait", 0) and b.gems < 30 and b.round < b.max_rounds - 200:
+    if b.round < b.mem.get("bank_wait", 0) and (b.gems < 30 or _pk.map_key() == (41, 41, 452, 36, 1, 36)) and b.round < b.max_rounds - 200:
         return False
     ad = b.altar_dist()
     late = ad < 1000 and (b.round + ad + 35 >= b.max_rounds)
