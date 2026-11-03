@@ -11,10 +11,11 @@ import g_bank
 import g_farm
 import g_fight
 import g_survive
+import g_guard
 
 NAME = "g2_gobr"
 ID = 9
 GEN = 2
 PARENTS = ['g1_goldrush', 'g1_brawler']
-GENES = {"bank": g_bank, "farm": g_farm, "fight": g_fight, "survive": g_survive}
-ORDER = ['survive', 'bank', 'fight', 'farm']
+GENES = {"bank": g_bank, "farm": g_farm, "fight": g_fight, "survive": g_survive, "guard": g_guard}
+ORDER = ['survive', 'bank', 'guard', 'fight', 'farm']

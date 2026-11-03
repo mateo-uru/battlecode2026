@@ -132,25 +132,28 @@ LONE_HOME = True            # acting leader with no safe target walks home inste
 # --- Shop ---------------------------------------------------------------------------------------
 # Item names per role; each shard is bought until its emblem completes (5 shards), then the next.
 BUILDS = {
-    "leader": ("JUNGLE_SHARD_OF_HEALTH", "DURABILITY_SHARD_OF_HEALTH", "POWER_SHARD_OF_STRENGTH",
-               "HOME_SHARD_OF_HEALTH", "POWER_SHARD_OF_STRENGTH"),
-    "bruiser": ("MONSTER_SHARD_OF_STRENGTH", "DURABILITY_SHARD_OF_HEALTH", "POWER_SHARD_OF_STRENGTH",
-                "POWER_SHARD_OF_HEALTH"),
-    "striker": ("MONSTER_SHARD_OF_STRENGTH", "POWER_SHARD_OF_STRENGTH", "DURABILITY_SHARD_OF_HEALTH",
-                "POWER_SHARD_OF_STRENGTH"),
-    "caster": ("POWER_SHARD_OF_FOCUS", "MONSTER_SHARD_OF_FOCUS", "DURABILITY_SHARD_OF_HEALTH",
-               "POWER_SHARD_OF_FOCUS"),
-    "marksman": ("TREASURE_SHARD_OF_STRENGTH", "MONSTER_SHARD_OF_STRENGTH", "POWER_SHARD_OF_STRENGTH",
-                 "DURABILITY_SHARD_OF_HEALTH"),
-    "support": ("POWER_SHARD_OF_FOCUS", "DURABILITY_SHARD_OF_HEALTH", "POWER_SHARD_OF_FOCUS"),
+    "leader": ("JUNGLE_SHARD_OF_HEALTH", "DURABILITY_SHARD_OF_HEALTH", "CAPTURE_SHARD_OF_STRENGTH",
+               "BRUISER_SHARD_OF_HEALTH", "BRUISER_SHARD_OF_STRENGTH"),
+    "bruiser": ("MONSTER_SHARD_OF_STRENGTH", "JUNGLE_SHARD_OF_HEALTH", "CAPTURE_SHARD_OF_STRENGTH",
+                "DURABILITY_SHARD_OF_HEALTH", "SKIRMISH_SHARD_OF_STRENGTH", "COLLECTORS_SHARD_OF_STRENGTH",
+                "BRUISER_SHARD_OF_STRENGTH", "BRUISER_SHARD_OF_HEALTH"),
+    "striker": ("MONSTER_SHARD_OF_STRENGTH", "CAPTURE_SHARD_OF_STRENGTH", "JUNGLE_SHARD_OF_HEALTH",
+                "DURABILITY_SHARD_OF_HEALTH", "SKIRMISH_SHARD_OF_STRENGTH", "COLLECTORS_SHARD_OF_STRENGTH",
+                "BRUISER_SHARD_OF_STRENGTH"),
+    "caster": ("MONSTER_SHARD_OF_FOCUS", "CAPTURE_SHARD_OF_FOCUS", "DURABILITY_SHARD_OF_HEALTH",
+               "SKIRMISH_SHARD_OF_FOCUS", "COLLECTORS_SHARD_OF_FOCUS", "BRUISER_SHARD_OF_FOCUS"),
+    "marksman": ("MONSTER_SHARD_OF_STRENGTH", "CAPTURE_SHARD_OF_STRENGTH", "DURABILITY_SHARD_OF_HEALTH",
+                 "JUNGLE_SHARD_OF_STRENGTH", "SKIRMISH_SHARD_OF_STRENGTH", "COLLECTORS_SHARD_OF_STRENGTH",
+                 "BRUISER_SHARD_OF_STRENGTH"),
+    "support": ("DURABILITY_SHARD_OF_HEALTH", "BRUISER_SHARD_OF_FOCUS", "BRUISER_SHARD_OF_HEALTH"),
 }
 ROLE_OF_TYPE = {
     T_MARCELLA: "bruiser", T_RYTH: "bruiser", T_VARG: "bruiser", T_HEART: "bruiser",
     T_VENDETTA: "striker", T_ISSAC: "striker", T_REN: "striker",
-    T_STELLAR: "caster", T_PRISM: "caster", T_CASSI: "caster", T_TAVI: "caster",
+    T_STELLAR: "caster", T_PRISM: "caster", T_CASSI: "caster", T_TAVI: "marksman",
     T_VESPER: "marksman", T_WILLOW: "support",
 }
-LOCK_AFTER_SHARDS = 5       # buy an altar lock once this many shards are owned
+LOCK_AFTER_SHARDS = 10       # buy an altar lock once this many shards are owned
 SHOP_TRIP_GOLD = 300        # go home to shop with this much gold when nothing urgent happens ...
 SHOP_TRIP_PER_TILE = 5      # ... plus this much per tile of walking distance from spawn
 SHOP_TRIP_HURT = 0.65       # below this health share ...
