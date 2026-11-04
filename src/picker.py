@@ -32,6 +32,7 @@ SRC_MAPS = {
     (67, 73, 26, 2238, 1, 10): SRC,  # ultrastarvation (stage R3 11-02 brain sweep)
     (51, 31, 76, 340, 1, 50): SRC,  # gemcombat2 (stage R3 11-02 brain sweep)
     (41, 61, 44, 1162, 1, 84): SRC,  # gemcombat4 (stage R3 11-02 brain sweep)
+    (99, 99, 676, 4579, 1, 479): SRC,  # gemcombat5 (stageN 11-04 FS sweep 2-0 +1346)
 }
 
 _choice = None
