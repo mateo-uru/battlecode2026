@@ -14,6 +14,7 @@ FORCE = None  # set to SRC or BBOT for experiments
 
 # (width, height, walls, holes, altars, bushes) -> brain.
 SRC_MAPS = {
+    (51, 51, 45, 245, 1, 394): SRC,  # gemcombat3 ladder 10-28, local src 2-0
     (30, 30, 0, 108, 2, 16): SRC,        # gemfight     1042:129, 1031:75   +1869
     (41, 30, 36, 22, 1, 24): SRC,        # eight        1011:11, 1005:161   +1844
     (80, 80, 664, 58, 2, 78): SRC,       # starvation   608:368, 656:116    +780

@@ -2,9 +2,21 @@ from body import DR, HOR_DRAFT
 
 STUNNERS = {int(DR.RYTH), int(DR.STELLAR), int(DR.REN), int(DR.VARG), int(DR.TAVI), int(HOR_DRAFT)}
 
+HONEYCOMB = (49, 44, 366, 0, 4, 112)
 
 def preferences(info, size, ally, enemy):
     enemy_stuns = sum(1 for e in enemy if int(e) in STUNNERS)
+    try:
+        import picker
+        key = picker.map_key()
+    except Exception:
+        key = None
+    if key == HONEYCOMB and size <= 3:
+        # ladder 11-01/02: Vesper/Varg/Tavi 3-9 here; winners vs us draft Vesper/Vendetta/Marcella or Heart
+        return [DR.VESPER_VALE, DR.VENDETTA, DR.MARCELLA, DR.VARG, HOR_DRAFT, DR.RYTH, DR.REN]
+    if key == (41, 41, 84, 60, 2, 222) and size <= 3:
+        # collision ladder 7-44 with Vesper/Varg/Tavi; winners draft Heart+Vesper+Vendetta/Marcella
+        return [DR.VESPER_VALE, DR.VENDETTA, DR.MARCELLA, DR.VARG, HOR_DRAFT, DR.RYTH, DR.REN]
     if info.get("gold", 999) == 0:
         if enemy_stuns >= 2:
             return [DR.VESPER_VALE, DR.VARG, DR.VENDETTA, DR.MARCELLA, DR.RYTH, HOR_DRAFT, DR.REN, DR.CASSI_AND_ISSAC]
