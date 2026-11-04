@@ -14,13 +14,24 @@ FORCE = None  # set to SRC or BBOT for experiments
 
 # (width, height, walls, holes, altars, bushes) -> brain.
 SRC_MAPS = {
+    (51, 51, 45, 245, 1, 394): SRC,  # gemcombat3 ladder 10-28, local src 2-0
     (30, 30, 0, 108, 2, 16): SRC,        # gemfight     1042:129, 1031:75   +1869
-    (45, 30, 30, 354, 2, 14): SRC,       # swirl        979:15, 953:64      +1853
     (41, 30, 36, 22, 1, 24): SRC,        # eight        1011:11, 1005:161   +1844
     (80, 80, 664, 58, 2, 78): SRC,       # starvation   608:368, 656:116    +780
-    (100, 100, 540, 1832, 4, 132): SRC,  # ambush       673:353, 561:452    +429
     (90, 30, 0, 76, 18, 144): SRC,       # lanes        1002:431, 1004:941  +634
-    (30, 30, 0, 36, 2, 36): SRC,         # elkring      1001:704, 1001:814  +484
+    # Stage Y 10-31: src beat v173 bbot 2-0 (both sides) and bbot was 1-9/2-7/2-12/2-9 on the ladder
+    (61, 61, 432, 359, 1, 93): SRC,      # crater
+    (93, 93, 1292, 16, 2, 170): SRC,     # galaxy
+    (50, 40, 148, 0, 6, 76): SRC,        # the-farm
+    (51, 51, 186, 10, 3, 210): SRC,      # crossing
+    (31, 31, 0, 72, 4, 46): SRC,  # gold-rush (stage R3 11-02 brain sweep)
+    (41, 41, 198, 264, 1, 28): SRC,  # fan (stage R3 11-02 brain sweep)
+    (37, 29, 100, 128, 2, 36): SRC,  # membrane (stage R3 11-02 brain sweep)
+    (35, 31, 196, 42, 3, 24): SRC,  # lost-world: ladder bbot 4-25 since v174
+    (50, 41, 139, 4, 1, 2): SRC,  # boss-battle: ladder bbot 5-19
+    (67, 73, 26, 2238, 1, 10): SRC,  # ultrastarvation (stage R3 11-02 brain sweep)
+    (51, 31, 76, 340, 1, 50): SRC,  # gemcombat2 (stage R3 11-02 brain sweep)
+    (41, 61, 44, 1162, 1, 84): SRC,  # gemcombat4 (stage R3 11-02 brain sweep)
 }
 
 _choice = None
@@ -35,13 +46,24 @@ def map_key():
     return _key
 
 
+# Ladder 10-28/29 (v171): src brain went 1-14 on swirl and 0-8 on ambush -> force bbot there.
+BBOT_MAPS = {
+    (45, 30, 30, 354, 2, 14),     # swirl
+    (100, 100, 540, 1832, 4, 132),  # ambush
+    (84, 83, 864, 970, 4, 106),  # riverbed (stage R3: bbot 2-0 vs src)
+    (61, 41, 140, 369, 34, 56),  # the-front (stage R3: bbot 2-0 vs src)
+}
+
+
 def is_src_map(key):
+    if key in BBOT_MAPS:
+        return False
     if key in SRC_MAPS:
         return True
     w, h, wc, hc, ac, bc = key
     area = w * h
     # 1. Compact low-wall, low-bush arenas (e.g. gemfight, eight, swirl, elkring; excludes bridges/graveyard/fragment)
-    if area <= 1400 and ac <= 2 and wc <= 40 and bc <= 36 and not (bc >= 24 and hc >= 200):
+    if area <= 1400 and ac <= 2 and wc <= 40 and bc <= 24 and not (bc >= 24 and hc >= 200):
         return True
     # 2. Multi-altar lane maps (e.g. lanes with 18 altars)
     if ac >= 15:
